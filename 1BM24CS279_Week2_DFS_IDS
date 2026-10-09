@@ -1,0 +1,150 @@
+SIZE = 9
+MAX = 100
+MAX_DEPTH = 40
+
+initial = [5, 4, 0,
+           6, 1, 8,
+           7, 3, 2]
+
+goal = [0, 1, 2,
+        3, 4, 5,
+        6, 7, 8]
+
+
+# Print the puzzle
+def printState(state):
+    for i in range(SIZE):
+        print(state[i], end=" ")
+        if i % 3 == 2:
+            print()
+    print()
+
+
+# Check goal state
+def isGoal(state):
+    return state == goal
+
+
+# Get all valid next states
+def getNextStates(state):
+    blank = state.index(0)
+    row = blank // 3
+    col = blank % 3
+
+    directions = [
+        (-1, 0),  # Up
+        (1, 0),   # Down
+        (0, -1),  # Left
+        (0, 1)    # Right
+    ]
+
+    for dr, dc in directions:
+        newRow = row + dr
+        newCol = col + dc
+
+        if 0 <= newRow < 3 and 0 <= newCol < 3:
+            newBlank = newRow * 3 + newCol
+            temp = state.copy()
+
+            temp[blank], temp[newBlank] = (
+                temp[newBlank], temp[blank]
+            )
+
+            yield temp
+
+
+# Display the solution
+def printSolution(path, algorithm):
+    print(f"\nSolution found using {algorithm}!")
+    print("Number of moves:", len(path) - 1)
+
+    for i, state in enumerate(path):
+        print(f"Step {i}:")
+        printState(state)
+
+
+# ---------------- DFS ----------------
+def dfs():
+    visited = set()
+    path = []
+
+    def search(state):
+        key = tuple(state)
+
+        if key in visited:
+            return False
+
+        if len(visited) >= MAX:
+            return False
+
+        visited.add(key)
+        path.append(state.copy())
+
+        if isGoal(state):
+            return True
+
+        for nextState in getNextStates(state):
+            if tuple(nextState) not in visited:
+                if search(nextState):
+                    return True
+
+        path.pop()
+        return False
+
+    if search(initial.copy()):
+        printSolution(path, "DFS")
+        return True
+
+    print("\nDFS: Solution not found within the search limit.")
+    return False
+
+
+# ---------------- IDS ----------------
+def ids():
+    path = [initial.copy()]
+
+    def dls(state, depth, limit):
+        if isGoal(state):
+            return True
+
+        if depth == limit:
+            return False
+
+        for nextState in getNextStates(state):
+            # Avoid cycles in the current path
+            if nextState not in path:
+                path.append(nextState.copy())
+
+                if dls(nextState, depth + 1, limit):
+                    return True
+
+                path.pop()
+
+        return False
+
+    for limit in range(MAX_DEPTH + 1):
+        print(f"IDS: Searching at depth limit {limit}")
+
+        path[:] = [initial.copy()]
+
+        if dls(initial.copy(), 0, limit):
+            printSolution(path, "IDS")
+            return True
+
+    print("\nIDS: Solution not found within the depth limit.")
+    return False
+
+
+# ---------------- MAIN PROGRAM ----------------
+def main():
+    print("Initial State:")
+    printState(initial)
+
+    print("\n========== DEPTH FIRST SEARCH (DFS) ==========")
+    dfs()
+
+    print("\n========== ITERATIVE DEEPENING SEARCH (IDS) ==========")
+    ids()
+
+
+main()
