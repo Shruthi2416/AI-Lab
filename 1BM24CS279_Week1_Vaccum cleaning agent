@@ -1,0 +1,33 @@
+# Vacuum Cleaner Agent
+
+room = {
+    "A": input("Enter status of Room A (Dirty/Clean): ").capitalize(),
+    "B": input("Enter status of Room B (Dirty/Clean): ").capitalize()
+}
+
+location = input("Enter vacuum location (A/B): ").upper()
+
+print("\nGoal: Clean both rooms")
+
+while room["A"] == "Dirty" or room["B"] == "Dirty":
+
+    print("\nCurrent Location:", location)
+    print("Room Status:", room)
+
+    # Simple Reflex: Clean if the current room is dirty
+    if room[location] == "Dirty":
+        print("Action: Suck")
+        room[location] = "Clean"
+
+    # Goal-Based: Move towards the room that is still dirty
+    elif room["A"] == "Dirty":
+        print("Action: Move to A")
+        location = "A"
+
+    elif room["B"] == "Dirty":
+        print("Action: Move to B")
+        location = "B"
+
+print("\nGoal Achieved!")
+print("Both rooms are clean.")
+print("Final Room Status:", room)
